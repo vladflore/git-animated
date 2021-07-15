@@ -1,25 +1,32 @@
-import manimpango
 from manim import *
+
+config.background_color = WHITE
 
 
 class LinearCommits(Scene):
     def construct(self):
         commits = []
+        arrows = []
         for i in range(7):
             commits.append(self.create_commit(i))
 
         for i in range(1, len(commits)):
             commits[i].next_to(commits[i-1], RIGHT)
+            arrows.append(Arrow(start=commits[i].point_at_angle(
+                PI), end=commits[i-1].point_at_angle(0)).set_color(ORANGE))
 
         for i in range(len(commits)):
             self.add(commits[i])
             self.play(FadeIn(commits[i]))
+            if i > 0:
+                self.add(arrows[i-1])
+                self.play(FadeIn(arrows[i-1]))
 
         self.wait(1)
 
     def create_commit(self, id):
         circle = Circle(0.3).set_fill(
-            color=BLUE, opacity=1).set_stroke(color=RED, width=1)
-        text = MarkupText(f'C{id}', color=RED).scale(0.2)
-        commit = Group(circle, text)
-        return commit
+            color=BLUE, opacity=0.5).set_stroke(color=ORANGE, width=1)
+        text = MarkupText(f'C{id}', color=BLACK).scale(0.2)
+        circle.add(text)
+        return circle
