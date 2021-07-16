@@ -7,7 +7,7 @@ class LinearCommits(Scene):
     def construct(self):
         commits = []
         arrows = []
-        for i in range(7):
+        for i in range(2):
             commits.append(self.create_commit(i))
 
         for i in range(1, len(commits)):
@@ -21,6 +21,15 @@ class LinearCommits(Scene):
             if i > 0:
                 self.add(arrows[i-1])
                 self.play(FadeIn(arrows[i-1]))
+
+        new_branch_commit = self.create_commit(4)
+        new_branch_commit.next_to(commits[-1], UP*0.5).shift(RIGHT*0.5)
+        arrow = Arrow(start=new_branch_commit.point_at_angle(
+            5*PI/4), end=commits[-1].point_at_angle(PI/4)).set_color(ORANGE)
+        self.add(new_branch_commit)
+        self.play(FadeIn(new_branch_commit))
+        self.add(arrow)
+        self.play(FadeIn(arrow))
 
         self.wait(1)
 
