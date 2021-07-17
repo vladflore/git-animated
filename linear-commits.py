@@ -1,4 +1,5 @@
 from manim import *
+from numpy.core.numeric import moveaxis
 
 config.background_color = WHITE
 
@@ -25,11 +26,13 @@ class LinearCommits(Scene):
         new_branch_commit = self.create_commit(4)
         new_branch_commit.next_to(commits[-1], UP*0.5).shift(RIGHT*0.5)
         arrow = Arrow(start=new_branch_commit.point_at_angle(
-            5*PI/4), end=commits[-1].point_at_angle(PI/4)).set_color(ORANGE)
+            5*PI/4), end=commits[-1].point_at_angle(PI/2)).set_color(ORANGE)
         self.add(new_branch_commit)
         self.play(FadeIn(new_branch_commit))
         self.add(arrow)
         self.play(FadeIn(arrow))
+
+        self.move_head(new_branch_commit, UP)
 
         self.wait(1)
 
@@ -39,3 +42,12 @@ class LinearCommits(Scene):
         text = MarkupText(f'C{id}', color=BLACK).scale(0.2)
         circle.add(text)
         return circle
+
+    def move_head(self, commit, side):
+        text = MarkupText('HEAD', color=RED).scale(0.2)
+        text.next_to(commit, side)
+        arrow = Arrow(start=text, end=commit).set_color(ORANGE)
+        self.add(text)
+        self.play(FadeIn(text))
+        self.add(arrow)
+        self.play(FadeIn(arrow))
