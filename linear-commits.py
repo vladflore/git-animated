@@ -1,39 +1,51 @@
+import numpy as np
 from manim import *
-from numpy.core.numeric import moveaxis
 
 config.background_color = WHITE
 
 
 class LinearCommits(Scene):
+    commits = []
+
     def construct(self):
-        commits = []
         arrows = []
         for i in range(2):
-            commits.append(self.create_commit(i))
+            self.commits.append(self.create_commit(i))
 
-        for i in range(1, len(commits)):
-            commits[i].next_to(commits[i-1], RIGHT)
-            arrows.append(Arrow(start=commits[i].point_at_angle(
-                PI), end=commits[i-1].point_at_angle(0)).set_color(ORANGE))
+        for i in range(1, len(self.commits)):
+            self.commits[i].next_to(self.commits[i-1], RIGHT)
+            arrows.append(Arrow(start=self.commits[i].point_at_angle(
+                PI), end=self.commits[i-1].point_at_angle(0)).set_color(ORANGE))
 
-        for i in range(len(commits)):
-            self.add(commits[i])
-            self.play(FadeIn(commits[i]))
+        for i in range(len(self.commits)):
+            self.add(self.commits[i])
+            self.play(FadeIn(self.commits[i]))
             if i > 0:
                 self.add(arrows[i-1])
                 self.play(FadeIn(arrows[i-1]))
 
         new_branch_commit = self.create_commit(4)
-        new_branch_commit.next_to(commits[-1], UP*0.5).shift(RIGHT*0.5)
+        new_branch_commit.next_to(self.commits[-1], UP*0.5).shift(RIGHT*0.5)
         arrow = Arrow(start=new_branch_commit.point_at_angle(
-            5*PI/4), end=commits[-1].point_at_angle(PI/2)).set_color(ORANGE)
+            5*PI/4), end=self.commits[-1].point_at_angle(PI/2)).set_color(ORANGE)
         self.add(new_branch_commit)
         self.play(FadeIn(new_branch_commit))
         self.add(arrow)
         self.play(FadeIn(arrow))
 
-        self.move_head(new_branch_commit, UP)
+        head = self.create_head()
+        head.next_to(new_branch_commit, UP)
+        self.add(head)
+        self.wait(1)
 
+        self.play(head.animate.next_to(self.commits[-1], DOWN))
+        arrow = self.create_arrow(head, self.commits[-1], DOWN)
+        self.add(arrow)
+        self.wait(1)
+        self.remove(arrow)
+        self.play(head.animate.next_to(new_branch_commit, UP))
+        arrow = self.create_arrow(head, new_branch_commit, UP)
+        self.add(arrow)
         self.wait(1)
 
     def create_commit(self, id):
@@ -43,11 +55,18 @@ class LinearCommits(Scene):
         circle.add(text)
         return circle
 
-    def move_head(self, commit, side):
+    def create_arrow(self, head, commit, side):
+        if np.array_equal(UP, side):
+            start_arrow = head.get_bottom()
+            end_arrow = commit.point_at_angle(PI/2)
+        elif np.array_equal(DOWN, side):
+            start_arrow = head.get_top()
+            end_arrow = commit.point_at_angle(3*PI/2)
+        arrow = Arrow(start=start_arrow, end=end_arrow).set_color(ORANGE)
+        return arrow
+
+    def create_head(self):
+        rectangle = Rectangle(color=RED, width=0.5, height=0.25)
         text = MarkupText('HEAD', color=RED).scale(0.2)
-        text.next_to(commit, side)
-        arrow = Arrow(start=text, end=commit).set_color(ORANGE)
-        self.add(text)
-        self.play(FadeIn(text))
-        self.add(arrow)
-        self.play(FadeIn(arrow))
+        rectangle.add(text)
+        return rectangle
