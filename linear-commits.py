@@ -36,8 +36,12 @@ class LinearCommits(Scene):
         head = self.create_head()
         head.next_to(new_branch_commit, UP)
         self.add(head)
+        arrow = self.create_arrow(head, new_branch_commit, UP)
+        self.add(arrow)
+
         self.wait(1)
 
+        self.remove(arrow)
         self.play(head.animate.next_to(self.commits[-1], DOWN))
         arrow = self.create_arrow(head, self.commits[-1], DOWN)
         self.add(arrow)
