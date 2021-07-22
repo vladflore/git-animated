@@ -40,12 +40,22 @@ class LinearCommits(Scene):
         self.play(FadeOut(g))
 
         # show the commits
+        a = None
         for i in range(len(self.commits)):
             self.play(FadeIn(self.commits[i]))
             if i > 0:
                 self.play(FadeIn(arrows[i-1]))
+            self.remove(a)
             self.play(master_ref.animate.next_to(self.commits[i], UP))
+            a = self.create_arrow_between_ref_and_commit(
+                master_ref, self.commits[i], UP)
+            self.play(FadeIn(a))
+
+            self.remove(head_to_master_arrow)
             self.play(head_ref.animate.next_to(master_ref, UP))
+            head_to_master_arrow = self.create_arrow_between_refs(
+                head_ref, master_ref, DOWN)
+            self.play(FadeIn(head_to_master_arrow))
 
         self.wait(1)
 
@@ -95,7 +105,8 @@ class LinearCommits(Scene):
         elif np.array_equal(DOWN, side):
             start_arrow = rectangle.get_top()
             end_arrow = circle.point_at_angle(3*PI/2)
-        arrow = Arrow(start=start_arrow, end=end_arrow).set_color(self.ARROW_COLOR)
+        arrow = Arrow(start=start_arrow, end=end_arrow).set_color(
+            self.ARROW_COLOR)
         return arrow
 
     def create_arrow_between_refs(self, start, end, side):
@@ -105,17 +116,20 @@ class LinearCommits(Scene):
         elif np.array_equal(DOWN, side):
             start_arrow = start.get_top()
             end_arrow = end.get_bottom()
-        arrow = Arrow(start=start_arrow, end=end_arrow).set_color(self.ARROW_COLOR)
+        arrow = Arrow(start=start_arrow, end=end_arrow).set_color(
+            self.ARROW_COLOR)
         return arrow
 
     def create_head_ref(self):
-        rectangle = Rectangle(color=self.HEAD_REF_COLOR, width=0.5, height=0.25)
+        rectangle = Rectangle(color=self.HEAD_REF_COLOR,
+                              width=0.5, height=0.25)
         text = MarkupText('HEAD', color=self.HEAD_REF_COLOR).scale(0.2)
         rectangle.add(text)
         return rectangle
 
     def create_branch_ref(self, name):
-        rectangle = Rectangle(color=self.BRANCH_REF_COLOR, width=0.6, height=0.25)
+        rectangle = Rectangle(color=self.BRANCH_REF_COLOR,
+                              width=0.6, height=0.25)
         text = MarkupText(name, color=self.BRANCH_REF_COLOR).scale(0.2)
         rectangle.add(text)
         return rectangle
