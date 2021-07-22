@@ -1,12 +1,13 @@
 import numpy as np
 from manim import *
+from manim.mobject.geometry import ArrowTriangleTip
 
 config.background_color = WHITE
 
 
 class LinearCommits(Scene):
     commits = []
-    NO_COMMITS = 3
+    NO_COMMITS = 2
     ARROW_COLOR = GRAY
     COMMIT_FILL_COLOR = BLUE
     COMMIT_STROKE_COLOR = ORANGE
@@ -42,50 +43,40 @@ class LinearCommits(Scene):
         # show the commits
         a = None
         for i in range(len(self.commits)):
+            # show new commit
             self.play(FadeIn(self.commits[i]))
+            # connect the current commit with the previous one
             if i > 0:
                 self.play(FadeIn(arrows[i-1]))
+            # remove the arrow between master and commit
             self.remove(a)
+            # move the master ref
             self.play(master_ref.animate.next_to(self.commits[i], UP))
+            # create new arrow between master and commit
             a = self.create_arrow_between_ref_and_commit(
                 master_ref, self.commits[i], UP)
             self.play(FadeIn(a))
 
+            # remove the arrow between head and master
             self.remove(head_to_master_arrow)
+            # move the head ref
             self.play(head_ref.animate.next_to(master_ref, UP))
+            # create new arrow between head and master
             head_to_master_arrow = self.create_arrow_between_refs(
                 head_ref, master_ref, DOWN)
             self.play(FadeIn(head_to_master_arrow))
 
         self.wait(1)
 
-        # new_branch_commit = self.create_commit(4)
-        # new_branch_commit.next_to(self.commits[-1], UP*0.5).shift(RIGHT*0.5)
-        # arrow = Arrow(start=new_branch_commit.point_at_angle(
-        #     5*PI/4), end=self.commits[-1].point_at_angle(PI/2)).set_color(ORANGE)
-        # self.add(new_branch_commit)
-        # self.play(FadeIn(new_branch_commit))
-        # self.add(arrow)
-        # self.play(FadeIn(arrow)HEAD_REF_COLOR)
+        # create a new branch based on the last commit
+        b = self.create_branch_ref("feature")
+        b.next_to(master_ref, RIGHT)
+        self.play(FadeIn(b))
+        a = self.create_arrow_between_ref_and_commit(
+            b, self.commits[-1], UP)
+        self.play(FadeIn(a))
 
-        # head = self.create_head()
-        # head.next_to(new_branch_commit, UP)
-        # self.add(head)
-        # arrow = self.create_arrow(head, new_branch_commit, UP)
-        # self.add(arrow)
-
-        # self.wait(1)
-
-        # self.remove(arrow)
-        # self.play(head.animate.next_to(self.commits[-1], DOWN))
-        # arrow = self.create_arrow(head, self.commits[-1], DOWN)
-        # self.add(arrow)
-        # self.wait(1)
-        # self.remove(arrow)
-        # self.play(head.animate.next_to(new_branch_commit, UP))
-        # arrow = self.create_arrow(head, new_branch_commit, UP)
-        # self.add(arrow)
-        # self.wait(1)
+        self.wait(1)
 
     def create_commit(self, id):
         circle = Circle(0.3).set_fill(
