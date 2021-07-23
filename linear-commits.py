@@ -1,8 +1,5 @@
-from itertools import islice
-
 import numpy as np
 from manim import *
-from manim.mobject.geometry import ArrowTriangleTip
 
 config.background_color = WHITE
 
@@ -84,6 +81,10 @@ class LinearCommits(Scene):
                 head_ref, master_ref, DOWN)
             self.play(FadeIn(head_to_master_arrow))
 
+        #
+        # NEW FEATURE BRANCH
+        #
+
         # create a new branch based on the last commit
         feature_ref = self.create_branch_ref("feature")
         feature_ref.next_to(self.commits_on_master[-1], DOWN)
@@ -93,33 +94,60 @@ class LinearCommits(Scene):
             feature_ref, self.commits_on_master[-1], DOWN)
         self.play(FadeIn(feature_to_commit_arrow))
 
+        # remove the arrow between head and master
+        self.remove(head_to_master_arrow)
+
+        # move the head ref to point to the new feature ref
+        self.play(head_ref.animate.next_to(feature_ref, DOWN))
+        head_to_feature_arrow = self.create_arrow_between_refs(
+            head_ref, feature_ref, UP)
+        self.play(FadeIn(head_to_feature_arrow))
+
+        g = Group(feature_ref, feature_to_commit_arrow,
+                  head_ref, head_to_feature_arrow)
+
         # create new commits on the feature branch
         for i in range(self.NO_COMMITS_ON_FEATURE):
+            # create commit
             self.commits_on_feature.append(self.create_commit(f'F{i}'))
+
+            # position the commit
             next_to = self.commits_on_master[-1] if i == 0 else self.commits_on_feature[i-1]
             self.commits_on_feature[i].next_to(
                 next_to, DOWN if i == 0 else RIGHT)
             if i == 0:
                 self.commits_on_feature[i].shift(RIGHT*0.5)
 
+            # remove the feature ref and arrow between it and the commit
             if i == 0:
-                self.remove(feature_ref)
-                self.remove(feature_to_commit_arrow)
+                self.play(FadeOut(g))
 
+            # show the commit
             self.play(FadeIn(self.commits_on_feature[i]))
 
+            # show the arrow between the commits
             previous_commit = self.commits_on_master[-1] if i == 0 else self.commits_on_feature[i-1]
             is_linear = False if i == 0 else True
             arrow_between_commits = self.create_arrow_between_commits(
                 self.commits_on_feature[i], previous_commit, linear=is_linear)
             self.play(FadeIn(arrow_between_commits))
 
+            # remove the arrow between the feature ref and commit
             self.remove(feature_to_commit_arrow)
+
+            # move the feature ref
             self.play(feature_ref.animate.next_to(
                 self.commits_on_feature[i], DOWN))
+            # show the arrow between the feature ref and commit
             feature_to_commit_arrow = self.create_arrow_between_ref_and_commit(
                 feature_ref, self.commits_on_feature[i], DOWN)
             self.play(FadeIn(feature_to_commit_arrow))
+
+            self.remove(head_to_feature_arrow)
+            self.play(head_ref.animate.next_to(feature_ref, DOWN))
+            head_to_feature_arrow = self.create_arrow_between_refs(
+                head_ref, feature_ref, UP)
+            self.play(FadeIn(head_to_feature_arrow))
 
         self.wait(2)
 
