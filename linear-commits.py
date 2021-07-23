@@ -7,8 +7,8 @@ config.background_color = WHITE
 class LinearCommits(Scene):
     commits_on_master = []
     commits_on_feature = []
-    NO_COMMITS_ON_MASTER = 2
-    NO_COMMITS_ON_FEATURE = 2
+    NO_COMMITS_ON_MASTER = 3
+    NO_COMMITS_ON_FEATURE = 3
     ARROW_COLOR = GRAY
     COMMIT_FILL_COLOR = BLUE
     COMMIT_STROKE_COLOR = ORANGE
@@ -160,11 +160,11 @@ class LinearCommits(Scene):
 
     def create_arrow_between_commits(self, start, end, linear=True):
         if linear:
-            return Arrow(start=start.point_at_angle(
-                PI), end=end.point_at_angle(0)).set_color(self.ARROW_COLOR)
+            return self.create_arrow(start.point_at_angle(
+                PI), end.point_at_angle(0), self.ARROW_COLOR)
         else:
-            return Arrow(start=start.point_at_angle(
-                PI/2), end=end.point_at_angle(3*PI/2), buff=1).set_color(self.ARROW_COLOR)
+            return self.create_arrow(start.point_at_angle(
+                PI/2), end.point_at_angle(0), self.ARROW_COLOR)
 
     def create_arrow_between_ref_and_commit(self, rectangle, circle, side):
         if np.array_equal(UP, side):
@@ -201,3 +201,6 @@ class LinearCommits(Scene):
         text = MarkupText(name, color=self.BRANCH_REF_COLOR).scale(0.2)
         rectangle.add(text)
         return rectangle
+
+    def create_arrow(self, start, end, color):
+        return Line(start=start, end=end, color=color).set_stroke(width=1.0).add_tip(tip_length=0.06)
