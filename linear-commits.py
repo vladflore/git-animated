@@ -1,7 +1,7 @@
 import numpy as np
 from manim import *
 
-config.background_color = WHITE
+config.background_color = BLACK
 
 
 class LinearCommits(Scene):
@@ -17,6 +17,9 @@ class LinearCommits(Scene):
     BRANCH_REF_COLOR = GREEN
 
     def construct(self):
+
+        self.intro()
+
         arrows_between_master_commits = []
         master_ref = self.create_branch_ref('master')
         self.play(FadeIn(master_ref))
@@ -150,6 +153,16 @@ class LinearCommits(Scene):
             self.play(FadeIn(head_to_feature_arrow))
 
         self.wait(2)
+
+    def intro(self):
+        t = Text("Git Animated", font="Noto Sans",
+                 gradient=(RED, BLUE, GREEN)).scale(2)
+        st = Text("Linear commits", font="Noto Sans",
+                  color=BLUE).set_opacity(0.5).scale(1)
+        g = Group(t, st).arrange(DOWN, buff=.8)
+        self.play(FadeIn(g))
+        self.wait(2)
+        self.play(FadeOut(g))
 
     def create_commit(self, id):
         circle = Circle(0.3).set_fill(
