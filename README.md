@@ -12,3 +12,6 @@ manim -p --format=gif linear-commits.py LinearCommits
 ```sh
 manim -p linear-commits.py LinearCommits
 ```
+
+#### Install ManimCE
+TBD
