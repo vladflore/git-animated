@@ -18,17 +18,10 @@ class LinearCommits(Scene):
 
     def construct(self):
 
-        commands = [
-            self.create_text("$ git init")
-        ]
-
         self.intro()
 
         arrows_between_master_commits = []
         master_ref = self.create_branch_ref('master')
-
-        # add first command
-        self.play(FadeIn(commands[0].to_edge(UL)))
 
         self.play(FadeIn(master_ref))
 
@@ -42,7 +35,6 @@ class LinearCommits(Scene):
         # create the commits
         for i in range(self.NO_COMMITS_ON_MASTER):
             self.commits_on_master.append(self.create_commit(f'M{i}'))
-            commands.append(self.create_text(f"$ git commit -m 'M{i}'"))
 
         # arrange the commits and create the arrows between them
         for i in range(1, len(self.commits_on_master)):
@@ -57,10 +49,6 @@ class LinearCommits(Scene):
         # show the commits
         master_to_commit_arrow = None
         for i in range(len(self.commits_on_master)):
-            # add next command
-            commands[i+1].next_to(commands[i], DOWN)
-            self.play(FadeIn(commands[i+1]))
-
             # show new commit
             self.play(FadeIn(self.commits_on_master[i]))
             # connect the current commit with the previous one
@@ -104,6 +92,7 @@ class LinearCommits(Scene):
         # create a new branch based on the last commit
         feature_ref = self.create_branch_ref("feature")
         feature_ref.next_to(self.commits_on_master[-1], DOWN)
+
         self.play(FadeIn(feature_ref))
 
         feature_to_commit_arrow = self.create_arrow_between_ref_and_commit(
@@ -167,9 +156,6 @@ class LinearCommits(Scene):
 
         self.wait(2)
 
-    def create_text(self, text):
-        return Text(text).scale(0.25).set_color(WHITE)
-
     def intro(self):
         t = Text("Git Animated", font="Noto Sans",
                  gradient=(RED, BLUE, GREEN)).scale(2)
@@ -177,8 +163,7 @@ class LinearCommits(Scene):
                   color=BLUE).set_opacity(0.5).scale(1)
         g = Group(t, st).arrange(DOWN, buff=.8)
         self.play(FadeIn(g), run_time=2)
-        self.wait(1)
-        self.play(FadeOut(g), run_time=3)
+        self.play(FadeOut(g), run_time=2)
 
     def create_commit(self, id):
         circle = Circle(0.3).set_fill(
