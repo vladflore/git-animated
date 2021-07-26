@@ -14,4 +14,9 @@ manim -p linear-commits.py LinearCommits
 ```
 
 #### Install ManimCE
-TBD
+Follow installation instruction as indicated on this page: https://docs.manim.community/en/stable/installation/linux.html.
+
+Then run:
+```shell
+pip install manim
+```

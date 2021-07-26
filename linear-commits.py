@@ -1,7 +1,10 @@
-import numpy as np
 from manim import *
 
 config.background_color = BLACK
+
+
+def create_arrow(start, end, color):
+    return Line(start=start, end=end, color=color).set_stroke(width=1.0).add_tip(tip_length=0.06)
 
 
 class LinearCommits(Scene):
@@ -39,9 +42,9 @@ class LinearCommits(Scene):
         # arrange the commits and create the arrows between them
         for i in range(1, len(self.commits_on_master)):
             self.commits_on_master[i].next_to(
-                self.commits_on_master[i-1], RIGHT)
+                self.commits_on_master[i - 1], RIGHT)
             arrows_between_master_commits.append(self.create_arrow_between_commits(
-                self.commits_on_master[i], self.commits_on_master[i-1]))
+                self.commits_on_master[i], self.commits_on_master[i - 1]))
 
         g = Group(master_ref, head_ref, head_to_master_arrow)
         self.play(FadeOut(g))
@@ -53,7 +56,7 @@ class LinearCommits(Scene):
             self.play(FadeIn(self.commits_on_master[i]))
             # connect the current commit with the previous one
             if i > 0:
-                self.play(FadeIn(arrows_between_master_commits[i-1]))
+                self.play(FadeIn(arrows_between_master_commits[i - 1]))
             # remove the arrow between master and commit
             self.remove(master_to_commit_arrow)
 
@@ -117,11 +120,11 @@ class LinearCommits(Scene):
             self.commits_on_feature.append(self.create_commit(f'F{i}'))
 
             # position the commit
-            next_to = self.commits_on_master[-1] if i == 0 else self.commits_on_feature[i-1]
+            next_to = self.commits_on_master[-1] if i == 0 else self.commits_on_feature[i - 1]
             self.commits_on_feature[i].next_to(
                 next_to, DOWN if i == 0 else RIGHT)
             if i == 0:
-                self.commits_on_feature[i].shift(RIGHT*0.5)
+                self.commits_on_feature[i].shift(RIGHT * 0.5)
 
             # remove the feature ref and arrow between it and the commit
             if i == 0:
@@ -131,7 +134,7 @@ class LinearCommits(Scene):
             self.play(FadeIn(self.commits_on_feature[i]))
 
             # show the arrow between the commits
-            previous_commit = self.commits_on_master[-1] if i == 0 else self.commits_on_feature[i-1]
+            previous_commit = self.commits_on_master[-1] if i == 0 else self.commits_on_feature[i - 1]
             is_linear = False if i == 0 else True
             arrow_between_commits = self.create_arrow_between_commits(
                 self.commits_on_feature[i], previous_commit, linear=is_linear)
@@ -174,19 +177,19 @@ class LinearCommits(Scene):
 
     def create_arrow_between_commits(self, start, end, linear=True):
         if linear:
-            return self.create_arrow(start.point_at_angle(
+            return create_arrow(start.point_at_angle(
                 PI), end.point_at_angle(0), self.ARROW_COLOR)
         else:
-            return self.create_arrow(start.point_at_angle(
-                PI/2), end.point_at_angle(0), self.ARROW_COLOR)
+            return create_arrow(start.point_at_angle(
+                PI / 2), end.point_at_angle(0), self.ARROW_COLOR)
 
     def create_arrow_between_ref_and_commit(self, rectangle, circle, side):
         if np.array_equal(UP, side):
             start_arrow = rectangle.get_bottom()
-            end_arrow = circle.point_at_angle(PI/2)
+            end_arrow = circle.point_at_angle(PI / 2)
         elif np.array_equal(DOWN, side):
             start_arrow = rectangle.get_top()
-            end_arrow = circle.point_at_angle(3*PI/2)
+            end_arrow = circle.point_at_angle(3 * PI / 2)
         arrow = Arrow(start=start_arrow, end=end_arrow).set_color(
             self.ARROW_COLOR)
         return arrow
@@ -215,6 +218,3 @@ class LinearCommits(Scene):
         text = MarkupText(name, color=self.BRANCH_REF_COLOR).scale(0.2)
         rectangle.add(text)
         return rectangle
-
-    def create_arrow(self, start, end, color):
-        return Line(start=start, end=end, color=color).set_stroke(width=1.0).add_tip(tip_length=0.06)
