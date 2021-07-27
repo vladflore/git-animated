@@ -7,6 +7,13 @@ def create_arrow(start, end, color):
     return Line(start=start, end=end, color=color).set_stroke(width=1.0).add_tip(tip_length=0.06)
 
 
+def create_command(text, corner=LEFT+UP, edge=LEFT, after=None):
+    if after == None:
+        return Text(text).scale(0.3).set_color(ORANGE).to_corner(corner).to_edge(edge)
+    else:
+        return Text(text).scale(0.3).set_color(ORANGE).next_to(after, DOWN).to_edge(edge)
+
+
 class LinearCommits(Scene):
     commits_on_master = []
     commits_on_feature = []
@@ -26,6 +33,8 @@ class LinearCommits(Scene):
         arrows_between_master_commits = []
         master_ref = self.create_branch_ref('master')
 
+        init = create_command("git init")
+        self.play(Write(init), run_time=0.5)
         self.play(FadeIn(master_ref))
 
         head_ref = self.create_head_ref()
@@ -50,8 +59,14 @@ class LinearCommits(Scene):
         self.play(FadeOut(g))
 
         # show the commits
+        cmd = None
         master_to_commit_arrow = None
         for i in range(len(self.commits_on_master)):
+
+            cmd = create_command(
+                f'git commit -m \'M{i}\'', after=init if cmd == None else cmd)
+            self.play(Write(cmd), run_time=0.5)
+
             # show new commit
             self.play(FadeIn(self.commits_on_master[i]))
             # connect the current commit with the previous one
@@ -96,6 +111,9 @@ class LinearCommits(Scene):
         feature_ref = self.create_branch_ref("feature")
         feature_ref.next_to(self.commits_on_master[-1], DOWN)
 
+        cmd = create_command("git branch feature", after=cmd)
+        self.play(Write(cmd), run_time=0.5)
+
         self.play(FadeIn(feature_ref))
 
         feature_to_commit_arrow = self.create_arrow_between_ref_and_commit(
@@ -105,8 +123,12 @@ class LinearCommits(Scene):
         # remove the arrow between head and master
         self.remove(head_to_master_arrow)
 
+        cmd = create_command('git checkout feature', after=cmd)
+        self.play(Write(cmd), run_time=0.5)
+
         # move the head ref to point to the new feature ref
         self.play(head_ref.animate.next_to(feature_ref, DOWN))
+
         head_to_feature_arrow = self.create_arrow_between_refs(
             head_ref, feature_ref, UP)
         self.play(FadeIn(head_to_feature_arrow))
@@ -129,6 +151,9 @@ class LinearCommits(Scene):
             # remove the feature ref and arrow between it and the commit
             if i == 0:
                 self.play(FadeOut(g))
+
+            cmd = create_command(f'git commit -m \'F{i}\'', after=cmd)
+            self.play(Write(cmd), run_time=0.5)
 
             # show the commit
             self.play(FadeIn(self.commits_on_feature[i]))
