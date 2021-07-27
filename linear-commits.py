@@ -222,9 +222,24 @@ class LinearCommits(Scene):
 
 class TestText(Scene):
     def construct(self):
-        top_left_corner = Text("Hello World!").scale(0.3).set_color(BLUE).to_corner(LEFT + UP)
-        under_top_left_corner = Text("Good Day Good Sir!").scale(0.3).set_color(RED).next_to(
-            top_left_corner.get_corner(DOWN + LEFT), DOWN)
-        self.add(top_left_corner)
-        self.add(under_top_left_corner)
+        first = Text("aaa bbb ccc ddd eee fff ggg hhh iii jjj").scale(
+            0.3).set_color(BLUE).to_corner(LEFT + UP).to_edge(LEFT)
+        self.add(first)
+
+        second = Text("111 222 333 444 555 666 777 888").scale(0.3).set_color(RED).next_to(
+            first, DOWN).to_edge(LEFT)
+        self.add(second)
+
+        # d = Dot()
+        # self.add(d.to_corner(LEFT+UP))
+
+        # x = Dot(color=ORANGE)
+        # self.add(x.next_to(d, DOWN))
+
+        # d1 = Dot(color=RED)
+        # self.add(d1)
+
+        # d2 = Dot(color=BLUE)
+        # self.add(d2.shift(UP))
+
         self.wait(5)
