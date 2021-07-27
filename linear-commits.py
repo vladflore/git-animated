@@ -218,3 +218,13 @@ class LinearCommits(Scene):
         text = MarkupText(name, color=self.BRANCH_REF_COLOR).scale(0.2)
         rectangle.add(text)
         return rectangle
+
+
+class TestText(Scene):
+    def construct(self):
+        top_left_corner = Text("Hello World!").scale(0.3).set_color(BLUE).to_corner(LEFT + UP)
+        under_top_left_corner = Text("Good Day Good Sir!").scale(0.3).set_color(RED).next_to(
+            top_left_corner.get_corner(DOWN + LEFT), DOWN)
+        self.add(top_left_corner)
+        self.add(under_top_left_corner)
+        self.wait(5)
