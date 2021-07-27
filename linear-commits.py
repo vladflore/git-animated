@@ -7,8 +7,8 @@ def create_arrow(start, end, color):
     return Line(start=start, end=end, color=color).set_stroke(width=1.0).add_tip(tip_length=0.06)
 
 
-def create_command(text, corner=LEFT+UP, edge=LEFT, after=None):
-    if after == None:
+def create_command(text, corner=LEFT + UP, edge=LEFT, after=None):
+    if after is None:
         return Text(text).scale(0.3).set_color(ORANGE).to_corner(corner).to_edge(edge)
     else:
         return Text(text).scale(0.3).set_color(ORANGE).next_to(after, DOWN).to_edge(edge)
