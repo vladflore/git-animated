@@ -3,17 +3,6 @@ from manim import *
 config.background_color = BLACK
 
 
-def create_arrow(start, end, color):
-    return Line(start=start, end=end, color=color).set_stroke(width=1.0).add_tip(tip_length=0.06)
-
-
-def create_command(text, corner=LEFT + UP, edge=LEFT, after=None):
-    if after is None:
-        return Text(text).scale(0.3).set_color(ORANGE).to_corner(corner).to_edge(edge)
-    else:
-        return Text(text).scale(0.3).set_color(ORANGE).next_to(after, DOWN).to_edge(edge)
-
-
 class LinearCommits(Scene):
     commits_on_master = []
     commits_on_feature = []
@@ -33,7 +22,7 @@ class LinearCommits(Scene):
         arrows_between_master_commits = []
         master_ref = self.create_branch_ref('master')
 
-        init = create_command("git init")
+        init = self.create_command("git init")
         self.play(Write(init), run_time=0.5)
         self.play(FadeIn(master_ref))
 
@@ -63,7 +52,7 @@ class LinearCommits(Scene):
         master_to_commit_arrow = None
         for i in range(len(self.commits_on_master)):
 
-            cmd = create_command(
+            cmd = self.create_command(
                 f'git commit -m \'M{i}\'', after=init if cmd == None else cmd)
             self.play(Write(cmd), run_time=0.5)
 
@@ -111,7 +100,7 @@ class LinearCommits(Scene):
         feature_ref = self.create_branch_ref("feature")
         feature_ref.next_to(self.commits_on_master[-1], DOWN)
 
-        cmd = create_command("git branch feature", after=cmd)
+        cmd = self.create_command("git branch feature", after=cmd)
         self.play(Write(cmd), run_time=0.5)
 
         self.play(FadeIn(feature_ref))
@@ -123,7 +112,7 @@ class LinearCommits(Scene):
         # remove the arrow between head and master
         self.remove(head_to_master_arrow)
 
-        cmd = create_command('git checkout feature', after=cmd)
+        cmd = self.create_command('git checkout feature', after=cmd)
         self.play(Write(cmd), run_time=0.5)
 
         # move the head ref to point to the new feature ref
@@ -152,7 +141,7 @@ class LinearCommits(Scene):
             if i == 0:
                 self.play(FadeOut(g))
 
-            cmd = create_command(f'git commit -m \'F{i}\'', after=cmd)
+            cmd = self.create_command(f'git commit -m \'F{i}\'', after=cmd)
             self.play(Write(cmd), run_time=0.5)
 
             # show the commit
@@ -185,13 +174,18 @@ class LinearCommits(Scene):
         self.wait(2)
 
     def intro(self):
+        my_site = Text("vladflore.tech", font="Noto Sans").scale(0.75)
+        self.play(Write(my_site))
+        self.play(my_site.animate.shift(1.5 * UP))
         t = Text("Git Animated", font="Noto Sans",
-                 gradient=(RED, BLUE, GREEN)).scale(2)
-        st = Text("Linear commits", font="Noto Sans",
-                  color=BLUE).set_opacity(0.5).scale(1)
-        g = Group(t, st).arrange(DOWN, buff=.8)
+                 gradient=(RED, BLUE, GREEN)).scale(1.5)
+        st = Text("From your first commit to your first branch", font="Noto Sans",
+                  color=BLUE).scale(0.5)
+        g = Group(t, st).arrange(DOWN, buff=.8).next_to(my_site, DOWN, buff=0.8)
         self.play(FadeIn(g), run_time=2)
         self.play(FadeOut(g), run_time=2)
+        self.play(my_site.animate.shift(1.5 * DOWN))
+        self.play(Unwrite(my_site))
 
     def create_commit(self, id):
         circle = Circle(0.3).set_fill(
@@ -202,10 +196,10 @@ class LinearCommits(Scene):
 
     def create_arrow_between_commits(self, start, end, linear=True):
         if linear:
-            return create_arrow(start.point_at_angle(
+            return self.create_arrow(start.point_at_angle(
                 PI), end.point_at_angle(0), self.ARROW_COLOR)
         else:
-            return create_arrow(start.point_at_angle(
+            return self.create_arrow(start.point_at_angle(
                 PI / 2), end.point_at_angle(0), self.ARROW_COLOR)
 
     def create_arrow_between_ref_and_commit(self, rectangle, circle, side):
@@ -244,27 +238,16 @@ class LinearCommits(Scene):
         rectangle.add(text)
         return rectangle
 
+    def create_arrow(self, start, end, color):
+        return Line(start=start, end=end, color=color).set_stroke(width=1.0).add_tip(tip_length=0.06)
 
-class TestText(Scene):
+    def create_command(self, text, corner=LEFT + UP, edge=LEFT, after=None):
+        if after is None:
+            return Text(text).scale(0.3).set_color(ORANGE).to_corner(corner).to_edge(edge)
+        else:
+            return Text(text).scale(0.3).set_color(ORANGE).next_to(after, DOWN).to_edge(edge)
+
+
+class Test(Scene):
     def construct(self):
-        first = Text("aaa bbb ccc ddd eee fff ggg hhh iii jjj").scale(
-            0.3).set_color(BLUE).to_corner(LEFT + UP).to_edge(LEFT)
-        self.add(first)
-
-        second = Text("111 222 333 444 555 666 777 888").scale(0.3).set_color(RED).next_to(
-            first, DOWN).to_edge(LEFT)
-        self.add(second)
-
-        # d = Dot()
-        # self.add(d.to_corner(LEFT+UP))
-
-        # x = Dot(color=ORANGE)
-        # self.add(x.next_to(d, DOWN))
-
-        # d1 = Dot(color=RED)
-        # self.add(d1)
-
-        # d2 = Dot(color=BLUE)
-        # self.add(d2.shift(UP))
-
-        self.wait(5)
+        pass
