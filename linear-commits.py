@@ -4,8 +4,6 @@ config.background_color = BLACK
 
 
 class LinearCommits(Scene):
-    commits_on_master = []
-    commits_on_feature = []
     NO_COMMITS_ON_MASTER = 3
     NO_COMMITS_ON_FEATURE = 3
     ARROW_COLOR = GRAY
@@ -16,33 +14,32 @@ class LinearCommits(Scene):
     BRANCH_REF_COLOR = GREEN
 
     def construct(self):
+        commits_on_feature = []
+        arrows_between_master_commits = []
 
         self.intro()
 
-        arrows_between_master_commits = []
         master_ref = self.create_branch_ref('master')
-
-        init = self.create_command("git init")
-        self.play(Write(init), run_time=0.5)
+        init = self.show_command("git init", None)
         self.play(FadeIn(master_ref))
 
         head_ref = self.create_head_ref()
         head_ref.next_to(master_ref, UP)
         self.play(FadeIn(head_ref))
+
         head_to_master_arrow = self.create_arrow_between_refs(
             head_ref, master_ref, DOWN)
         self.play(FadeIn(head_to_master_arrow))
 
         # create the commits
-        for i in range(self.NO_COMMITS_ON_MASTER):
-            self.commits_on_master.append(self.create_commit(f'M{i}'))
+        commits_on_master = [self.create_commit(f'M{idx}') for idx in range(self.NO_COMMITS_ON_MASTER)]
 
         # arrange the commits and create the arrows between them
-        for i in range(1, len(self.commits_on_master)):
-            self.commits_on_master[i].next_to(
-                self.commits_on_master[i - 1], RIGHT)
+        for idx in range(1, len(commits_on_master)):
+            commits_on_master[idx].next_to(
+                commits_on_master[idx - 1], RIGHT)
             arrows_between_master_commits.append(self.create_arrow_between_commits(
-                self.commits_on_master[i], self.commits_on_master[i - 1]))
+                commits_on_master[idx], commits_on_master[idx - 1]))
 
         g = Group(master_ref, head_ref, head_to_master_arrow)
         self.play(FadeOut(g))
@@ -50,38 +47,35 @@ class LinearCommits(Scene):
         # show the commits
         cmd = None
         master_to_commit_arrow = None
-        for i in range(len(self.commits_on_master)):
-
-            cmd = self.create_command(
-                f'git commit -m \'M{i}\'', after=init if cmd == None else cmd)
-            self.play(Write(cmd), run_time=0.5)
+        for idx in range(len(commits_on_master)):
+            cmd = self.show_command(f'git commit -m \'M{idx}\'', after=init if cmd is None else cmd)
 
             # show new commit
-            self.play(FadeIn(self.commits_on_master[i]))
+            self.play(FadeIn(commits_on_master[idx]))
             # connect the current commit with the previous one
-            if i > 0:
-                self.play(FadeIn(arrows_between_master_commits[i - 1]))
+            if idx > 0:
+                self.play(FadeIn(arrows_between_master_commits[idx - 1]))
             # remove the arrow between master and commit
             self.remove(master_to_commit_arrow)
 
             # move the master ref
-            if i == 0:
-                master_ref.next_to(self.commits_on_master[i], UP)
+            if idx == 0:
+                master_ref.next_to(commits_on_master[idx], UP)
                 self.add(master_ref)
             else:
                 self.play(master_ref.animate.next_to(
-                    self.commits_on_master[i], UP))
+                    commits_on_master[idx], UP))
 
             # create new arrow between master and commit
             master_to_commit_arrow = self.create_arrow_between_ref_and_commit(
-                master_ref, self.commits_on_master[i], UP)
+                master_ref, commits_on_master[idx], UP)
             self.play(FadeIn(master_to_commit_arrow))
 
             # remove the arrow between head and master
             self.remove(head_to_master_arrow)
 
             # move the head ref
-            if i == 0:
+            if idx == 0:
                 head_ref.next_to(master_ref, UP)
                 self.add(head_ref)
             else:
@@ -98,22 +92,20 @@ class LinearCommits(Scene):
 
         # create a new branch based on the last commit
         feature_ref = self.create_branch_ref("feature")
-        feature_ref.next_to(self.commits_on_master[-1], DOWN)
+        feature_ref.next_to(commits_on_master[-1], DOWN)
 
-        cmd = self.create_command("git branch feature", after=cmd)
-        self.play(Write(cmd), run_time=0.5)
+        cmd = self.show_command("git branch feature", after=cmd)
 
         self.play(FadeIn(feature_ref))
 
         feature_to_commit_arrow = self.create_arrow_between_ref_and_commit(
-            feature_ref, self.commits_on_master[-1], DOWN)
+            feature_ref, commits_on_master[-1], DOWN)
         self.play(FadeIn(feature_to_commit_arrow))
 
         # remove the arrow between head and master
         self.remove(head_to_master_arrow)
 
-        cmd = self.create_command('git checkout feature', after=cmd)
-        self.play(Write(cmd), run_time=0.5)
+        cmd = self.show_command("git checkout feature", after=cmd)
 
         # move the head ref to point to the new feature ref
         self.play(head_ref.animate.next_to(feature_ref, DOWN))
@@ -126,32 +118,31 @@ class LinearCommits(Scene):
                   head_ref, head_to_feature_arrow)
 
         # create new commits on the feature branch
-        for i in range(self.NO_COMMITS_ON_FEATURE):
+        for idx in range(self.NO_COMMITS_ON_FEATURE):
             # create commit
-            self.commits_on_feature.append(self.create_commit(f'F{i}'))
+            commits_on_feature.append(self.create_commit(f'F{idx}'))
 
             # position the commit
-            next_to = self.commits_on_master[-1] if i == 0 else self.commits_on_feature[i - 1]
-            self.commits_on_feature[i].next_to(
-                next_to, DOWN if i == 0 else RIGHT)
-            if i == 0:
-                self.commits_on_feature[i].shift(RIGHT * 0.5)
+            next_to = commits_on_master[-1] if idx == 0 else commits_on_feature[idx - 1]
+            commits_on_feature[idx].next_to(
+                next_to, DOWN if idx == 0 else RIGHT)
+            if idx == 0:
+                commits_on_feature[idx].shift(RIGHT * 0.5)
 
             # remove the feature ref and arrow between it and the commit
-            if i == 0:
+            if idx == 0:
                 self.play(FadeOut(g))
 
-            cmd = self.create_command(f'git commit -m \'F{i}\'', after=cmd)
-            self.play(Write(cmd), run_time=0.5)
+            cmd = self.show_command(f'git commit -m \'F{idx}\'', after=cmd)
 
             # show the commit
-            self.play(FadeIn(self.commits_on_feature[i]))
+            self.play(FadeIn(commits_on_feature[idx]))
 
             # show the arrow between the commits
-            previous_commit = self.commits_on_master[-1] if i == 0 else self.commits_on_feature[i - 1]
-            is_linear = False if i == 0 else True
+            previous_commit = commits_on_master[-1] if idx == 0 else commits_on_feature[idx - 1]
+            is_linear = False if idx == 0 else True
             arrow_between_commits = self.create_arrow_between_commits(
-                self.commits_on_feature[i], previous_commit, linear=is_linear)
+                commits_on_feature[idx], previous_commit, linear=is_linear)
             self.play(FadeIn(arrow_between_commits))
 
             # remove the arrow between the feature ref and commit
@@ -159,10 +150,10 @@ class LinearCommits(Scene):
 
             # move the feature ref
             self.play(feature_ref.animate.next_to(
-                self.commits_on_feature[i], DOWN))
+                commits_on_feature[idx], DOWN))
             # show the arrow between the feature ref and commit
             feature_to_commit_arrow = self.create_arrow_between_ref_and_commit(
-                feature_ref, self.commits_on_feature[i], DOWN)
+                feature_ref, commits_on_feature[idx], DOWN)
             self.play(FadeIn(feature_to_commit_arrow))
 
             self.remove(head_to_feature_arrow)
@@ -238,14 +229,21 @@ class LinearCommits(Scene):
         rectangle.add(text)
         return rectangle
 
-    def create_arrow(self, start, end, color):
+    @staticmethod
+    def create_arrow(start, end, color):
         return Line(start=start, end=end, color=color).set_stroke(width=1.0).add_tip(tip_length=0.06)
 
-    def create_command(self, text, corner=LEFT + UP, edge=LEFT, after=None):
+    @staticmethod
+    def create_command(text, after, corner=LEFT + UP, edge=LEFT):
         if after is None:
             return Text(text).scale(0.3).set_color(ORANGE).to_corner(corner).to_edge(edge)
         else:
             return Text(text).scale(0.3).set_color(ORANGE).next_to(after, DOWN).to_edge(edge)
+
+    def show_command(self, command_text, after, speed=0.5):
+        command = self.create_command(command_text, after)
+        self.play(Write(command), run_time=speed)
+        return command
 
 
 class Test(Scene):
