@@ -5,7 +5,7 @@ config.background_color = BLACK
 
 class Merge(Scene):
     def construct(self):
-        # intro(self, "From multiple histories to one commit")
+        intro(self, "The case of fast-forward merging")
         master_commits = [create_commit(f'M{idx}') for idx in range(3)]
         arrows_between_master_commits = []
 
