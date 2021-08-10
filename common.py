@@ -4,6 +4,8 @@ COMMIT_FILL_COLOR = BLUE
 COMMIT_STROKE_COLOR = ORANGE
 COMMIT_LABEL_COLOR = BLACK
 ARROW_COLOR = GRAY
+BRANCH_REF_COLOR = GREEN
+HEAD_REF_COLOR = RED
 
 
 def intro(self, subtitle):
@@ -40,3 +42,43 @@ def create_arrow_between_commits(start, end, linear=True):
 
 def create_arrow(start, end, color):
     return Line(start=start, end=end, color=color).set_stroke(width=1.0).add_tip(tip_length=0.06)
+
+
+def create_arrow_between_ref_and_commit(rectangle, circle, side):
+    if np.array_equal(UP, side):
+        start_arrow = rectangle.get_bottom()
+        end_arrow = circle.point_at_angle(PI / 2)
+    elif np.array_equal(DOWN, side):
+        start_arrow = rectangle.get_top()
+        end_arrow = circle.point_at_angle(3 * PI / 2)
+    arrow = Arrow(start=start_arrow, end=end_arrow).set_color(
+        ARROW_COLOR)
+    return arrow
+
+
+def create_branch_ref(name):
+    rectangle = Rectangle(color=BRANCH_REF_COLOR,
+                          width=0.6, height=0.25)
+    text = MarkupText(name, color=BRANCH_REF_COLOR).scale(0.2)
+    rectangle.add(text)
+    return rectangle
+
+
+def create_head_ref():
+    rectangle = Rectangle(color=HEAD_REF_COLOR,
+                          width=0.5, height=0.25)
+    text = MarkupText('HEAD', color=HEAD_REF_COLOR).scale(0.2)
+    rectangle.add(text)
+    return rectangle
+
+
+def create_arrow_between_refs(start, end, side):
+    if np.array_equal(UP, side):
+        start_arrow = start.get_bottom()
+        end_arrow = end.get_top()
+    elif np.array_equal(DOWN, side):
+        start_arrow = start.get_top()
+        end_arrow = end.get_bottom()
+    arrow = Arrow(start=start_arrow, end=end_arrow).set_color(
+        ARROW_COLOR)
+    return arrow
