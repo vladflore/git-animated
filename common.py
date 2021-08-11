@@ -15,7 +15,7 @@ def intro(self, subtitle):
     t = Text("Git Animated", font="Noto Sans",
              gradient=(RED, BLUE, GREEN)).scale(1.5)
     st = Text(subtitle, font="Noto Sans",
-              color=BLUE).scale(0.5)
+              color=BLUE).scale(0.3)
     g = Group(t, st).arrange(DOWN, buff=.8).next_to(my_site, DOWN, buff=0.8)
     self.play(FadeIn(g), run_time=2)
     self.play(FadeOut(g), run_time=2)
@@ -82,3 +82,14 @@ def create_arrow_between_refs(start, end, side):
     arrow = Arrow(start=start_arrow, end=end_arrow).set_color(
         ARROW_COLOR)
     return arrow
+
+
+def _create_command(text, text_color, after, corner=LEFT + UP, edge=LEFT):
+    if after is None:
+        return Text(text).scale(0.3).set_color(text_color).to_corner(corner).to_edge(edge)
+    else:
+        return Text(text).scale(0.3).set_color(text_color).next_to(after, DOWN).to_edge(edge)
+
+
+def create_command(command_text, after, text_color=ORANGE):
+    return _create_command(command_text, text_color, after)

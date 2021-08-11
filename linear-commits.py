@@ -245,7 +245,3 @@ class LinearCommits(Scene):
         self.play(Write(command), run_time=speed)
         return command
 
-
-class Test(Scene):
-    def construct(self):
-        pass
