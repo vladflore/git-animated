@@ -5,7 +5,7 @@ config.background_color = BLACK
 
 class Merge(Scene):
     def construct(self):
-        intro(self, "The case of fast-forward merging")
+        intro(self, "The case of fast-forward merge")
 
         # create the master history
         master_commits = [create_commit(f'M{idx}') for idx in range(3)]
@@ -80,8 +80,7 @@ class Merge(Scene):
         all_objects = Group(master_history, group_master, branch_out, feature_history, group_feature, group_head)
         box = SurroundingRectangle(all_objects, color=WHITE, buff=0.75)
         self.play(Create(box))
-        self.wait(1)
-
+        
         self.play(FadeIn(master_history))
         self.play(FadeIn(group_master))
         self.play(FadeIn(branch_out))
@@ -98,7 +97,7 @@ class Merge(Scene):
         head_to_master_arrow = create_arrow_between_refs(head_ref, master_ref, DOWN)
         self.add(head_to_master_arrow)
 
-        self.wait(1)
+        self.wait()
 
         # merge feature into master
         git_commands.append(create_command('git merge feature', after=git_commands[-1], text_color=WHITE))
@@ -109,6 +108,8 @@ class Merge(Scene):
         master_ref_to_commit_arrow = create_arrow_between_ref_and_commit(master_ref, feature_commits[-1], UP)
         self.add(master_ref_to_commit_arrow)
 
+        self.wait()
+
         # delete feature branch
         git_commands.append(create_command('git branch -d feature', after=git_commands[-1], text_color=WHITE))
         self.play(FadeIn(git_commands[-1]),
@@ -116,4 +117,4 @@ class Merge(Scene):
         g = Group(feature_ref, feature_ref_to_commit_arrow)
         self.play(FadeOut(g), run_time=1.5)
 
-        self.wait(2)
+        self.wait()
