@@ -6,8 +6,9 @@
 Run one of the following commands (make sure to have installed the ManimCE and its dependencies):
 
 ```sh
-manim -p linear-commits.py LinearCommits
-manim -p merge.py Merge
+manim -p linear-commits.py
+manim -p mergeff.py
+manim -p merge3w.py
 ```
 
 Note:
