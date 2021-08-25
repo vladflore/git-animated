@@ -3,9 +3,9 @@ from common import *
 config.background_color = BLACK
 
 
-class Merge(Scene):
+class Merge3W(Scene):
     def construct(self):
-        intro(self, "The case of fast-forward merge")
+        # intro(self, "The case of three-way merge")
 
         # create the master history
         master_commits = [create_commit(f'M{idx}') for idx in range(3)]
@@ -80,7 +80,7 @@ class Merge(Scene):
         all_objects = Group(master_history, group_master, branch_out, feature_history, group_feature, group_head)
         box = SurroundingRectangle(all_objects, color=WHITE, buff=0.75)
         self.play(Create(box))
-        
+
         self.play(FadeIn(master_history))
         self.play(FadeIn(group_master))
         self.play(FadeIn(branch_out))
@@ -99,14 +99,26 @@ class Merge(Scene):
 
         self.wait()
 
-        # merge feature into master
-        git_commands.append(create_command('git merge feature', after=git_commands[-1], text_color=WHITE))
-        self.play(FadeIn(git_commands[-1]), run_time=.75)
+        # add one commit on the master branch
+        master_commits.append(create_commit(f'M{len(master_commits)}'))
+        master_commits[-1].next_to(master_commits[-2], RIGHT)
+        arrows_between_master_commits.append(
+            create_arrow_between_commits(master_commits[-1], master_commits[-2]))
+        git_commands.append(
+            create_command(f'git commit -m \'M{len(master_commits) - 1}\'', after=git_commands[-1], text_color=WHITE))
+        self.play(FadeIn(git_commands[-1]))
+        self.play(FadeIn(master_commits[-1]))
+        self.play(FadeIn(arrows_between_master_commits[-1]))
         self.remove(master_ref_to_commit_arrow)
-        g = Group(head_ref, head_to_master_arrow, master_ref)
-        self.play(g.animate.next_to(feature_commits[-1], UP))
-        master_ref_to_commit_arrow = create_arrow_between_ref_and_commit(master_ref, feature_commits[-1], UP)
+        self.play(master_ref.animate.next_to(master_commits[-1], UP))
+        master_ref_to_commit_arrow = create_arrow_between_ref_and_commit(master_ref, master_commits[-1], UP)
         self.add(master_ref_to_commit_arrow)
+        self.remove(head_to_master_arrow)
+        self.play(head_ref.animate.next_to(master_ref, UP))
+        head_to_master_arrow = create_arrow_between_refs(head_ref, master_ref, DOWN)
+        self.add(head_to_master_arrow)
+
+        # merge feature into master - 3-way merge
 
         self.wait()
 
