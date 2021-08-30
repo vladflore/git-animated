@@ -5,7 +5,7 @@ config.background_color = BLACK
 
 class Merge3W(Scene):
     def construct(self):
-        # intro(self, "The case of three-way merge")
+        intro(self, "The case of the recursive merge")
 
         # create the master history
         master_commits = [create_commit(f'M{idx}') for idx in range(3)]
@@ -98,7 +98,7 @@ class Merge3W(Scene):
         arrows_between_master_commits.append(
             create_arrow_between_commits(master_commits[-1], master_commits[-2]))
         git_commands.append(
-            create_command(f'git commit -m \'M{len(master_commits) - 1}\'', after=git_commands[-1], text_color=WHITE))
+            create_command(f'git commit -m \'M{len(master_commits) - 1}\'', after=git_commands[-1]))
         self.play(FadeIn(git_commands[-1]))
         self.play(FadeIn(master_commits[-1]))
         self.play(FadeIn(arrows_between_master_commits[-1]))
@@ -134,8 +134,15 @@ class Merge3W(Scene):
         head_to_master_arrow = create_arrow_between_refs(head_ref, master_ref, DOWN)
         self.add(head_to_master_arrow)
 
+        self.wait()
+
+        # this is the merge commit
+        self.play(Create(SurroundingRectangle(master_commits[-1], buff=SMALL_BUFF)))
+        self.play(Write(MarkupText('this is the merge commit\nit has two parents', color=YELLOW).scale(0.2).next_to(
+            master_commits[-1], RIGHT)))
+
         # delete feature branch
-        git_commands.append(create_command('git branch -d feature', after=git_commands[-1], text_color=WHITE))
+        git_commands.append(create_command('git branch -d feature', after=git_commands[-1]))
         self.play(FadeIn(git_commands[-1]),
                   run_time=.75)
         g = Group(feature_ref, feature_ref_to_commit_arrow)
