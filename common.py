@@ -31,13 +31,8 @@ def create_commit(commit_id):
     return circle
 
 
-def create_arrow_between_commits(start, end, linear=True):
-    if linear:
-        return create_arrow(start.point_at_angle(
-            PI), end.point_at_angle(0), ARROW_COLOR)
-    else:
-        return create_arrow(start.point_at_angle(
-            PI / 2), end.point_at_angle(0), ARROW_COLOR)
+def create_arrow_between_commits(start, end, angle_start=PI, angle_end=0):
+    return create_arrow(start.point_at_angle(angle_start), end.point_at_angle(angle_end), ARROW_COLOR)
 
 
 def create_arrow(start, end, color):

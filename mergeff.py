@@ -41,7 +41,8 @@ class MergeFF(Scene):
         feature_history.shift(UP).shift(RIGHT * 2.5)
 
         # branch out of master
-        branch_out = create_arrow_between_commits(feature_commits[0], master_commits[-1], False)
+        branch_out = create_arrow_between_commits(feature_commits[0], master_commits[-1], angle_start=PI / 2,
+                                                  angle_end=0)
 
         git_commands.append(create_command('git branch feature', after=git_commands[-1]))
         git_commands.append(create_command('git checkout feature', after=git_commands[-1]))
@@ -80,7 +81,7 @@ class MergeFF(Scene):
         all_objects = Group(master_history, group_master, branch_out, feature_history, group_feature, group_head)
         box = SurroundingRectangle(all_objects, color=WHITE, buff=0.75)
         self.play(Create(box))
-        
+
         self.play(FadeIn(master_history))
         self.play(FadeIn(group_master))
         self.play(FadeIn(branch_out))
