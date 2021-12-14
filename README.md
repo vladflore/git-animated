@@ -9,6 +9,7 @@ Run one of the following commands (make sure to have installed the ManimCE and i
 manim -p linear-commits.py
 manim -p mergeff.py
 manim -p merge3w.py
+manim -p rebase.py
 ```
 
 Note:
