@@ -5,10 +5,10 @@ config.background_color = BLACK
 
 class Rebase(Scene):
     def construct(self):
-        intro(self, "The case of the rebase")
+        # intro(self, "The case of the rebase")
 
         # create the master history
-        master_commits = [create_commit(f'M{idx}') for idx in range(3)]
+        master_commits = [create_commit(f'M{idx}') for idx in range(4)]
         arrows_between_master_commits = []
         master_history = Group()
         for idx in range(len(master_commits) - 1):
@@ -22,7 +22,7 @@ class Rebase(Scene):
         master_history.shift(LEFT * 2).shift(UP * 2)
 
         git_commands = []
-        for idx in range(len(master_commits)):
+        for idx in range(len(master_commits)-1):
             after = None if len(git_commands) == 0 else git_commands[idx - 1]
             git_commands.append(create_command(
                 f'git commit -m \'M{idx}\'', after=after))
@@ -42,7 +42,7 @@ class Rebase(Scene):
         feature_history.shift(LEFT * 2).shift(UP).shift(RIGHT * 2.25)
 
         # branch out of master
-        branch_out = create_arrow_between_commits(feature_commits[0], master_commits[-1], angle_start=PI / 2,
+        branch_out = create_arrow_between_commits(feature_commits[0], master_commits[-2], angle_start=PI / 2,
                                                   angle_end=0)
 
         git_commands.append(create_command(
@@ -52,7 +52,13 @@ class Rebase(Scene):
 
         for idx in range(len(feature_commits)):
             git_commands.append(create_command(
-                f'git commit -m \'F{idx}\'', after=git_commands[len(git_commands) - 1]))
+                f'git commit -m \'F{idx}\'', after=git_commands[-1]))
+
+        git_commands.append(create_command(
+            'git checkout master', after=git_commands[-1]))
+
+        git_commands.append(create_command(
+            f'git commit -m \'M{len(master_commits)-1}\'', after=git_commands[-1]))
 
         git_commands_group = Group(*git_commands)
         self.play(FadeIn(git_commands_group), run_time=.75)
@@ -76,13 +82,13 @@ class Rebase(Scene):
         group_feature.add(feature_ref_to_commit_arrow)
 
         head_ref = create_head_ref()
-        head_ref.next_to(feature_ref, DOWN)
-        head_to_feature_arrow = create_arrow_between_refs(
-            head_ref, feature_ref, UP)
+        head_ref.next_to(master_ref, UP)
+        head_to_master_arrow = create_arrow_between_refs(
+            head_ref, master_ref, DOWN)
 
         group_head = Group()
         group_head.add(head_ref)
-        group_head.add(head_to_feature_arrow)
+        group_head.add(head_to_master_arrow)
 
         g = Group(master_history, group_master, branch_out,
                   feature_history, group_feature, group_head)
@@ -90,40 +96,4 @@ class Rebase(Scene):
 
         self.wait()
 
-        # checkout master
-        git_commands.append(create_command(
-            'git checkout master', after=git_commands[-1], text_color=WHITE))
-        self.play(FadeIn(git_commands[-1]), run_time=.75)
-
-        self.remove(head_to_feature_arrow)
-        self.play(head_ref.animate.next_to(master_ref, UP))
-        head_to_master_arrow = create_arrow_between_refs(
-            head_ref, master_ref, DOWN)
-        self.add(head_to_master_arrow)
-
-        self.wait()
-
-        # add one commit on the master branch
-        master_commits.append(create_commit(f'M{len(master_commits)}'))
-        master_commits[-1].next_to(master_commits[-2], RIGHT)
-        arrows_between_master_commits.append(
-            create_arrow_between_commits(master_commits[-1], master_commits[-2]))
-        git_commands.append(
-            create_command(f'git commit -m \'M{len(master_commits) - 1}\'', after=git_commands[-1]))
-        self.play(FadeIn(git_commands[-1]))
-        self.play(FadeIn(master_commits[-1]))
-        self.play(FadeIn(arrows_between_master_commits[-1]))
-        self.remove(master_ref_to_commit_arrow)
-        self.play(master_ref.animate.next_to(master_commits[-1], UP))
-        master_ref_to_commit_arrow = create_arrow_between_ref_and_commit(
-            master_ref, master_commits[-1], UP)
-        self.add(master_ref_to_commit_arrow)
-        self.remove(head_to_master_arrow)
-        self.play(head_ref.animate.next_to(master_ref, UP))
-        head_to_master_arrow = create_arrow_between_refs(
-            head_ref, master_ref, DOWN)
-        self.add(head_to_master_arrow)
-
-        self.wait()
-
-        # tbd visualize the rebase
+        # tbd visualize the rebase of feature against master
