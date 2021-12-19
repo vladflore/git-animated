@@ -77,9 +77,9 @@ class Rebase(Scene):
         feature_ref_to_commit_arrow = create_arrow_between_ref_and_commit(
             feature_ref, feature_commits[-1], DOWN)
 
-        group_feature = Group()
-        group_feature.add(feature_ref)
-        group_feature.add(feature_ref_to_commit_arrow)
+        g = Group()
+        g.add(feature_ref)
+        g.add(feature_ref_to_commit_arrow)
 
         head_ref = create_head_ref()
         head_ref.next_to(master_ref, UP)
@@ -91,9 +91,78 @@ class Rebase(Scene):
         group_head.add(head_to_master_arrow)
 
         g = Group(master_history, group_master, branch_out,
-                  feature_history, group_feature, group_head)
+                  feature_history, g, group_head)
         self.play(FadeIn(g))
 
-        self.wait()
+        # checkout feature
+        git_commands.append(create_command(
+            'git checkout feature', after=git_commands[-1], text_color=WHITE))
+        self.play(FadeIn(git_commands[-1]), run_time=.75)
+        self.remove(head_to_master_arrow)
+        self.play(head_ref.animate.next_to(feature_ref, DOWN))
+        head_to_feature_arrow = create_arrow_between_refs(
+            head_ref, feature_ref, UP)
+        self.add(head_to_feature_arrow)
 
-        # tbd visualize the rebase of feature against master
+        git_commands.append(create_command(
+            'git rebase master', after=git_commands[-1], text_color=WHITE))
+        self.play(FadeIn(git_commands[-1]), run_time=.75)
+
+        # rebase
+        new_commits = [create_commit(f'F\'{idx}')
+                       for idx in range(len(feature_commits))]
+        for idx in range(len(new_commits)):
+            arrow = None
+            if idx == 0:
+                new_commits[idx].next_to(master_commits[-1])
+                arrow = create_arrow_between_commits(
+                    new_commits[idx], master_commits[-1])
+            else:
+                new_commits[idx].next_to(new_commits[idx-1])
+                arrow = create_arrow_between_commits(
+                    new_commits[idx], new_commits[idx-1])
+
+            # fade out the arrows between the original feature commits
+            if idx == 0:
+                new_branch_out = branch_out.copy()
+                new_branch_out.set_opacity(0.25)
+                self.play(Transform(branch_out, new_branch_out))
+            else:
+                a = arrows_between_feature_commits[idx-1].copy()
+                a.set_opacity(0.25)
+                self.play(Transform(arrows_between_feature_commits[idx-1], a))
+
+            # fade out the original feature commit
+            c = feature_commits[idx].copy()
+            c.set_opacity(0.25)
+            self.play(Transform(feature_commits[idx], c))
+
+            self.play(FadeIn(new_commits[idx]))
+            self.play(FadeIn(arrow))
+
+        self.remove(feature_ref_to_commit_arrow, feature_ref,
+                    head_to_feature_arrow, head_ref)
+
+        feature_ref.next_to(new_commits[-1], UP)
+        feature_ref_to_commit_arrow = create_arrow_between_ref_and_commit(
+            feature_ref, new_commits[-1], UP)
+        head_ref.next_to(feature_ref, UP)
+        head_to_feature_arrow = create_arrow_between_refs(
+            head_ref, feature_ref, DOWN)
+        g = Group(feature_ref, feature_ref_to_commit_arrow,
+                  head_ref, head_to_feature_arrow)
+        self.play(FadeIn(g))
+
+        g = Group(*new_commits)
+        self.play(Create(SurroundingRectangle(
+            g, buff=SMALL_BUFF)))
+        self.play(Write(MarkupText('these are new commits\nwith the same content\nas the original faded ones', color=YELLOW).scale(0.2).next_to(
+            new_commits[-1], RIGHT)))
+
+        g = Group(*feature_commits)
+        self.play(Create(SurroundingRectangle(
+            g, buff=SMALL_BUFF)))
+        self.play(Write(MarkupText('these commits will be eventually garbage collected', color=YELLOW).scale(0.2).next_to(
+            feature_commits[-1], RIGHT)))
+
+        self.wait()
