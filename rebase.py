@@ -5,7 +5,7 @@ config.background_color = BLACK
 
 class Rebase(Scene):
     def construct(self):
-        # intro(self, "The case of the rebase")
+        intro(self, "The case of the rebase")
 
         # create the master history
         master_commits = [create_commit(f'M{idx}') for idx in range(4)]
