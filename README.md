@@ -2,24 +2,35 @@
 
 ...for learning purposes
 
-#### How to run
-Run one of the following commands (make sure to have installed the ManimCE and its dependencies):
+#### Modules
+
+| File | Scene | Git concept |
+|---|---|---|
+| `linear-commits.py` | `LinearCommits` | basic commits and branching |
+| `mergeff.py` | `MergeFF` | fast-forward merge |
+| `merge3w.py` | `Merge3W` | three-way merge |
+| `rebase.py` | `Rebase` | rebase |
+| `cherrypick.py` | `CherryPick` | cherry-pick |
+
+#### Setup
+
+Dependencies are managed with [uv](https://docs.astral.sh/uv/). To create the virtual environment and install all dependencies:
 
 ```sh
-manim -p linear-commits.py
-manim -p mergeff.py
-manim -p merge3w.py
-manim -p rebase.py
+uv sync
+```
+
+#### How to run
+
+```sh
+uv run manim -p linear-commits.py
+uv run manim -p mergeff.py
+uv run manim -p merge3w.py
+uv run manim -p rebase.py
+uv run manim -p cherrypick.py
 ```
 
 Note:
 
 - add `--format=gif` to change the output format
-
-#### Install ManimCE
-Follow installation instruction as indicated on this page: https://docs.manim.community/en/stable/installation/linux.html.
-
-Then run:
-```shell
-pip install manim
-```
+- omit `-p` if you don't want the video to open automatically after rendering
